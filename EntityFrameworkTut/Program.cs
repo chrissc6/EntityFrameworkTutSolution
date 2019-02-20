@@ -10,6 +10,7 @@ namespace EntityFrameworkTut
         static void Main(string[] args)
         {
             List<Customer> customers = null;
+            List<Order> orders = null;
 
             using (var db = new AppDbContext())  //instance of the context, in the using statement no need for dispose
             {
@@ -60,11 +61,93 @@ namespace EntityFrameworkTut
 
 
 
-                db.SaveChanges(); // actually saves the into the database, can be done for many rows
+                //db.SaveChanges(); added new one to end 
+                // actually saves the into the database, can be done for many rows
                 //insertCu.Name = "Name"
+
+                
+
+                //orders add
+                var insertOr = new Order()
+                {
+                    Id = 0,
+                    CustomerId = 4,
+                    Description = "Order no1",
+                    Total = 1500
+                };
+                db.Orders.Add(insertOr);
+                var insertOr2 = new Order()
+                {
+                    Id = 0,
+                    CustomerId = 4,
+                    Description = "Order no2",
+                    Total = 2500
+                };
+                db.Orders.Add(insertOr2);
+                var insertOr3 = new Order()
+                {
+                    Id = 0,
+                    CustomerId = 7,
+                    Description = "Order no1",
+                    Total = 3500
+                };
+                //db.Orders.Add(insertOr3);
+                var insertOr4 = new Order()
+                {
+                    Id = 0,
+                    CustomerId = 7,
+                    Description = "Order no2",
+                    Total = 4500
+                };
+                //db.Orders.Add(insertOr4);
+                var insertOr5 = new Order()
+                {
+                    Id = 0,
+                    //CustomerId = 2,
+                    CustomerId = db.Customers.SingleOrDefault(c => c.Name == "Amazon").Id,
+                    Description = "Order no1",
+                    Total = 5500
+                };
+                //db.Orders.Add(insertOr5);
+                db.Orders.AddRange(new[] { insertOr3, insertOr4, insertOr5 }); ;
+                
+                
+                orders = db.Orders
+                    .ToList();
+                //orders.ForEach(i => Console.WriteLine(i));
+                foreach (var i in orders)
+                {
+                    Console.WriteLine(i.ToString());
+                }
+
+                var idx = 2;
+                var od = db.Orders
+                    .Find(idx); 
+                Console.WriteLine($"GetByPK = {od}");
+
+                db.SaveChanges();
+
+                //get all orders < 5000 sort by total desc
+                var orders2 = db.Orders
+                    .Where(t => t.Total < 5000)
+                    .OrderByDescending(t => t.Total)
+                    .ToList();
+                foreach (var i in orders2)
+                {
+                    Console.WriteLine(i.ToString());
+                }
+
+
+                //sum all orders from any 1 customer and display cus name and order total
+                var cus = "Kroger";
+                var orders3 = db.Orders
+                    .Where(o => o.Customer.Name == cus)
+                    .Sum(i => i.Total);
+                    
+                Console.WriteLine($"{cus} Total = {orders3:C}");
             }
 
-            
+
         }
     }
 }
